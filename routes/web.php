@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Dashboard\AnalyticsController;
 use App\Http\Controllers\Dashboard\AvatarController;
 use App\Http\Controllers\Dashboard\BlockController;
@@ -35,6 +38,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('pages/{page}/avatar', [AvatarController::class, 'store'])->name('avatar.store');
         Route::delete('pages/{page}/avatar', [AvatarController::class, 'destroy'])->name('avatar.destroy');
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Área de administración (solo rol admin)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::patch('users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+    Route::get('settings', [AdminSettingController::class, 'index'])->name('settings.index');
+    Route::patch('settings', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 
 require __DIR__.'/settings.php';
