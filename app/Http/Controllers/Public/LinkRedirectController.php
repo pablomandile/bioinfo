@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Enums\BlockType;
 use App\Http\Controllers\Controller;
+use App\Jobs\RecordLinkClickJob;
 use App\Models\Block;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,16 @@ class LinkRedirectController extends Controller
 
         abort_unless(is_string($url) && $url !== '', 404);
 
-        // TODO(Fase 1.3): dispatch RecordLinkClickJob para registrar la analítica del clic.
+        if ($block->is_visible) {
+            RecordLinkClickJob::dispatch(
+                $block->page_id,
+                $block->id,
+                $url,
+                $request->ip(),
+                $request->userAgent(),
+                $request->headers->get('referer'),
+            );
+        }
 
         return redirect()->away($url);
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Enums\SocialPlatform;
 use App\Http\Controllers\Controller;
+use App\Jobs\RecordPageViewJob;
 use App\Models\Block;
 use App\Models\Page;
 use App\Models\User;
@@ -52,6 +53,15 @@ class PublicPageController extends Controller
             'blocks' => fn ($query) => $isOwner ? $query : $query->visible(),
             'socialLinks',
         ]);
+
+        if (! $isOwner && $page->isPublished()) {
+            RecordPageViewJob::dispatch(
+                $page->id,
+                $request->ip(),
+                $request->userAgent(),
+                $request->headers->get('referer'),
+            );
+        }
 
         $theme = $this->themes->resolve($page->theme);
         $avatarUrl = $page->getFirstMediaUrl('avatar') ?: null;

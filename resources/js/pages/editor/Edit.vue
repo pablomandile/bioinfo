@@ -10,8 +10,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { PageTheme, ThemePreset } from '@/lib/theme';
 import type { BreadcrumbItem } from '@/types';
 import type { PublicBlock } from '@/types/bio';
-import { Head } from '@inertiajs/vue3';
-import { Check, Copy, ExternalLink, Loader2 } from 'lucide-vue-next';
+import { Head, Link } from '@inertiajs/vue3';
+import { BarChart3, Check, Copy, ExternalLink, Loader2 } from 'lucide-vue-next';
 import { computed, reactive, ref } from 'vue';
 
 interface EditablePageData {
@@ -191,6 +191,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <a :href="page.publicUrl" target="_blank" rel="noopener" class="rounded p-1 text-muted-foreground hover:bg-accent" title="Ver página">
                         <ExternalLink class="h-4 w-4" />
                     </a>
+                    <Link :href="`/dashboard/pages/${page.id}/analytics`" class="rounded p-1 text-muted-foreground hover:bg-accent" title="Analíticas">
+                        <BarChart3 class="h-4 w-4" />
+                    </Link>
                 </div>
 
                 <div class="flex items-center gap-3">

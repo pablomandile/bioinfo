@@ -27,6 +27,7 @@ class DashboardController extends Controller
                 'blocksCount' => $page->blocks_count,
                 'publicUrl' => url('/'.$user->username),
                 'editUrl' => route('pages.edit', $page),
+                'analyticsUrl' => route('pages.analytics', $page),
             ]);
 
         return Inertia::render('Dashboard', [

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\AnalyticsController;
 use App\Http\Controllers\Dashboard\AvatarController;
 use App\Http\Controllers\Dashboard\BlockController;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -19,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('dashboard')->scopeBindings()->group(function () {
         Route::get('pages/{page}/edit', [PageController::class, 'edit'])->name('pages.edit');
+        Route::get('pages/{page}/analytics', [AnalyticsController::class, 'show'])->name('pages.analytics');
         Route::patch('pages/{page}', [PageController::class, 'update'])->name('pages.update');
 
         Route::post('pages/{page}/blocks', [BlockController::class, 'store'])->name('blocks.store');

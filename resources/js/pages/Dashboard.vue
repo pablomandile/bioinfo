@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ExternalLink, Pencil } from 'lucide-vue-next';
+import { BarChart3, ExternalLink, Pencil } from 'lucide-vue-next';
 
 interface PageCard {
     id: number;
@@ -13,6 +13,7 @@ interface PageCard {
     blocksCount: number;
     publicUrl: string;
     editUrl: string;
+    analyticsUrl: string;
 }
 
 defineProps<{ pages: PageCard[]; username: string }>();
@@ -51,6 +52,9 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' 
                             class="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
                         >
                             <Pencil class="h-4 w-4" /> Editar
+                        </Link>
+                        <Link :href="page.analyticsUrl" class="rounded-md border p-2 transition hover:bg-accent" title="Analíticas">
+                            <BarChart3 class="h-4 w-4" />
                         </Link>
                         <a :href="page.publicUrl" target="_blank" rel="noopener" class="rounded-md border p-2 transition hover:bg-accent" title="Ver página pública">
                             <ExternalLink class="h-4 w-4" />
