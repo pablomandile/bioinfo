@@ -4,13 +4,21 @@ import type { Component } from 'vue';
  * Contrato de un tipo de bloque. El registry (lib/blocks/registry.ts) los
  * auto-carga desde resources/js/blocks/<tipo>/index.ts.
  *
- * En la Fase 1.2 se añade `editor` (formulario del panel) y `defaultData`.
+ * Añadir un tipo nuevo = crear la carpeta con index.ts + los componentes,
+ * y su caso en App\Blocks\BlockTypeRegistry (backend).
  */
 export interface BlockDefinition {
     type: string;
     label: string;
-    /** Componente que renderiza el bloque en la página pública. */
+    /** Ícono (lucide-vue-next) para el menú "Añadir bloque". */
+    icon?: Component;
+    category?: 'basic' | 'media' | 'social';
+    /** Render público del bloque. */
     renderer: Component;
-    /** Layouts en los que aparece (por defecto: ambos). */
+    /** Formulario de edición del bloque en el panel. */
+    editor?: Component;
+    /** Datos iniciales al crear (espejo cliente de BlockTypeRegistry). */
+    defaultData?: () => Record<string, unknown>;
+    /** Layouts soportados (por defecto: ambos). */
     layouts?: Array<'list' | 'grid'>;
 }

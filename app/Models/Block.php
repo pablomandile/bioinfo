@@ -30,6 +30,19 @@ class Block extends Model
         'ends_at',
     ];
 
+    /**
+     * Valores por defecto en memoria (coinciden con los defaults de la BD),
+     * necesarios para que los casts a Enum funcionen tras crear sin refrescar.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'size' => 'md',
+        'grid_col_span' => 1,
+        'grid_row_span' => 1,
+        'is_visible' => true,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -89,5 +102,23 @@ class Block extends Model
     public function getRouteKeyName(): string
     {
         return 'public_id';
+    }
+
+    /**
+     * Representación del bloque para el frontend (página pública y editor).
+     *
+     * @return array<string, mixed>
+     */
+    public function toPublicArray(): array
+    {
+        return [
+            'id' => $this->public_id,
+            'type' => $this->type->value,
+            'data' => $this->data ?? [],
+            'size' => $this->size->value,
+            'gridColSpan' => $this->grid_col_span,
+            'gridRowSpan' => $this->grid_row_span,
+            'isVisible' => $this->is_visible,
+        ];
     }
 }

@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Dashboard\AvatarController;
+use App\Http\Controllers\Dashboard\BlockController;
+use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\PageController;
+use App\Http\Controllers\Dashboard\SocialLinkController;
 use App\Http\Controllers\Public\LinkRedirectController;
 use App\Http\Controllers\Public\PublicPageController;
 use Illuminate\Support\Facades\Route;
@@ -9,9 +14,26 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('dashboard')->scopeBindings()->group(function () {
+        Route::get('pages/{page}/edit', [PageController::class, 'edit'])->name('pages.edit');
+        Route::patch('pages/{page}', [PageController::class, 'update'])->name('pages.update');
+
+        Route::post('pages/{page}/blocks', [BlockController::class, 'store'])->name('blocks.store');
+        Route::patch('pages/{page}/blocks/reorder', [BlockController::class, 'reorder'])->name('blocks.reorder');
+        Route::patch('pages/{page}/blocks/{block}', [BlockController::class, 'update'])->name('blocks.update');
+        Route::delete('pages/{page}/blocks/{block}', [BlockController::class, 'destroy'])->name('blocks.destroy');
+
+        Route::post('pages/{page}/social', [SocialLinkController::class, 'store'])->name('social.store');
+        Route::patch('pages/{page}/social/{socialLink}', [SocialLinkController::class, 'update'])->name('social.update');
+        Route::delete('pages/{page}/social/{socialLink}', [SocialLinkController::class, 'destroy'])->name('social.destroy');
+
+        Route::post('pages/{page}/avatar', [AvatarController::class, 'store'])->name('avatar.store');
+        Route::delete('pages/{page}/avatar', [AvatarController::class, 'destroy'])->name('avatar.destroy');
+    });
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -64,15 +64,7 @@ class PublicPageController extends Controller
                 'avatarUrl' => $avatarUrl,
             ],
             'layout' => $page->layout->value,
-            'blocks' => $page->blocks->map(fn (Block $block) => [
-                'id' => $block->public_id,
-                'type' => $block->type->value,
-                'data' => $block->data ?? [],
-                'size' => $block->size->value,
-                'gridColSpan' => $block->grid_col_span,
-                'gridRowSpan' => $block->grid_row_span,
-                'isVisible' => $block->is_visible,
-            ])->values(),
+            'blocks' => $page->blocks->map(fn (Block $block) => $block->toPublicArray())->values(),
             'social' => $page->socialLinks->map(fn ($link) => [
                 'platform' => $link->platform->value,
                 'label' => $link->platform instanceof SocialPlatform ? $link->platform->label() : (string) $link->platform,
