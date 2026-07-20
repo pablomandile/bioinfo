@@ -72,7 +72,7 @@ Principios de diseño transversales:
 | Puente front/back | **Inertia.js + Vue 3** (monolito) | El más productivo con el stack habitual (Laravel + Vue). Sin mantener una API separada en el MVP. SSR disponible para la página pública. |
 | API separada | **No en el MVP** (sí en Fase 2 con Sanctum) | La API pública se agrega cuando haga falta (app móvil, integraciones), sin bloquear el MVP. |
 | TypeScript | **Sí** | El registry de bloques y los temas son datos polimórficos; TS + discriminated unions previene errores al agregar tipos. |
-| SSR | **Sí, prioritario para la página pública** | SEO y Open Graph correctos. El panel puede ser CSR sin problema. |
+| SEO / Open Graph | **Meta y OG server-side vía la root view de Inertia** (`$page['props']['meta']` en `app.blade.php`) | Los previews sociales funcionan en el HTML inicial sin necesidad de correr el servidor Node de Inertia SSR. El SSR completo (render del cuerpo) queda como mejora futura documentada. |
 | Componentes UI | **shadcn-vue solo en el panel** | La página pública usa componentes propios mínimos: bundle liviano y tema 100% controlado por CSS variables. |
 | Modelo de bloques | **Tabla única `blocks` con `type` + `data` JSON** | Ver [§6](#6-sistema-de-bloques-extensible). Habilita "tipos ilimitados" sin migraciones. |
 | Roles | **spatie/laravel-permission** | Middleware y helpers listos; se amortiza con el área admin y el feature-gating futuro. |
@@ -237,16 +237,18 @@ Page 1───N AnalyticsEvent   Block 1───N AnalyticsEvent
 
 ## 5. Flujo de render público (SSR) vs panel (CSR)
 
-### Página pública (SSR)
+### Página pública
 
 1. `GET /{username}` → `Public\PublicPageController@show`.
-2. Resuelve el `User` por `username` y su página primaria publicada (404 con marca si no existe o está en borrador y el visitante no es el dueño).
-3. Despacha `RecordPageViewJob` a la cola (no bloquea el render).
-4. Pasa como props Inertia: perfil, bloques visibles ordenados, social links, tema (tokens CSS ya resueltos) y meta SEO/OG.
-5. Inertia SSR renderiza `Pages/Public/Show.vue` con `PublicLayout`:
-   - `<Head>` con `<title>`, `og:*`, `twitter:*`, canonical, `theme-color`.
-   - Las **CSS variables del tema** se inyectan inline en el root server-side → **sin flash (FOUC)** de color.
-   - Vite hace code-splitting por página: **el JS del editor (vuedraggable, shadcn, Pinia) NO se descarga en la página pública**.
+2. Resuelve el `User` por `username` y su página primaria publicada (404 si no existe o está en borrador y el visitante no es el dueño/admin).
+3. Despacha `RecordPageViewJob` a la cola (no cuenta vistas del dueño; no bloquea el render).
+4. Pasa como props Inertia: perfil, bloques visibles ordenados, social links, tema (CSS vars ya resueltas) y `meta` (SEO/OG).
+5. **Los meta/OG se renderizan server-side** en `resources/views/app.blade.php` leyendo `$page['props']['meta']` → los crawlers y los previews sociales los ven en el HTML inicial, sin necesitar el servidor Node de Inertia SSR.
+6. `pages/public/Show.vue` (con `PublicLayout`) hidrata el cuerpo en el cliente:
+   - Las **CSS variables del tema** se aplican inline en el root → **sin flash (FOUC)** de color.
+   - Vite hace code-splitting por página: **el JS del editor (vuedraggable, etc.) NO se descarga en la página pública**.
+
+> Mejora futura: activar el SSR completo de Inertia (`resources/js/ssr.ts` + `php artisan inertia:start-ssr`) para renderizar también el cuerpo server-side.
 
 ### Redirección de clics
 

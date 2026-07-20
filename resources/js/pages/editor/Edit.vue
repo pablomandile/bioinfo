@@ -3,6 +3,7 @@ import AddBlockMenu from '@/components/editor/AddBlockMenu.vue';
 import BlockListEditor from '@/components/editor/BlockListEditor.vue';
 import PhonePreview from '@/components/editor/PhonePreview.vue';
 import ProfilePanel from '@/components/editor/ProfilePanel.vue';
+import ShareDialog from '@/components/editor/ShareDialog.vue';
 import SocialLinksPanel from '@/components/editor/SocialLinksPanel.vue';
 import ThemePanel from '@/components/editor/ThemePanel.vue';
 import { api, debounce } from '@/composables/useApi';
@@ -11,7 +12,7 @@ import type { PageTheme, ThemePreset } from '@/lib/theme';
 import type { BreadcrumbItem } from '@/types';
 import type { PublicBlock } from '@/types/bio';
 import { Head, Link } from '@inertiajs/vue3';
-import { BarChart3, Check, Copy, ExternalLink, Loader2 } from 'lucide-vue-next';
+import { BarChart3, Check, Copy, ExternalLink, Loader2, Share2 } from 'lucide-vue-next';
 import { computed, reactive, ref } from 'vue';
 
 interface EditablePageData {
@@ -60,6 +61,7 @@ const social = reactive<SocialItem[]>([...props.social]);
 const saving = ref(false);
 const error = ref<string | null>(null);
 const copied = ref(false);
+const shareOpen = ref(false);
 
 const base = `/dashboard/pages/${page.id}`;
 
@@ -211,6 +213,13 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </span>
                     <button
                         type="button"
+                        class="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition hover:bg-accent"
+                        @click="shareOpen = true"
+                    >
+                        <Share2 class="h-4 w-4" /> Compartir
+                    </button>
+                    <button
+                        type="button"
                         class="rounded-md px-3 py-1.5 text-sm font-medium text-white transition"
                         :class="isPublished ? 'bg-neutral-600 hover:bg-neutral-700' : 'bg-green-600 hover:bg-green-700'"
                         @click="togglePublish"
@@ -260,5 +269,13 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </div>
         </div>
+
+        <ShareDialog
+            :open="shareOpen"
+            :username="page.username"
+            :public-url="page.publicUrl"
+            :is-published="isPublished"
+            @close="shareOpen = false"
+        />
     </AppLayout>
 </template>

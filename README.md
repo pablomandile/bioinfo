@@ -240,8 +240,8 @@ Detalle completo en [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Roadmap por fases
 
-- **Fase 0 — Setup + documentación** *(actual)*: scaffolding del starter kit, paquetes core, migraciones base, seeders, docs.
-- **Fase 1 — MVP + contenido rico**: auth con roles, perfil, bloques (link/heading/texto/imagen/embed), editor drag & drop, iconos sociales, temas, layout lista/grid, analíticas de vistas y clics, QR, SEO/OG, área admin.
+- **Fase 0 — Setup + documentación** ✅ *(completada)*: scaffolding del starter kit, paquetes core, migraciones base, seeders, docs.
+- **Fase 1 — MVP + contenido rico** ✅ *(completada)*: auth con roles, perfil, bloques (link/heading/texto/imagen/embed), editor drag & drop, iconos sociales, temas, layout lista/grid, analíticas de vistas y clics, QR + compartir, SEO/Open Graph server-side, área admin + registro cerrable.
 - **Fase 2 — Avanzado**: personalización avanzada (fuentes, gradientes, thumbnails, links destacados, programación/redirect), analíticas avanzadas (CTR, geografía, dispositivos, referrers, GA/Meta Pixel/UTM), captura de email + integraciones, API con Sanctum, múltiples páginas por cuenta, i18n, protección por contraseña, age gate/NSFW, exportación de datos.
 - **Fase 3 — Premium / monetización**: productos digitales, propinas, Stripe/PayPal, planes de suscripción + feature gating, dominio propio + SSL.
 

@@ -20,13 +20,6 @@ function blockWrapperClass(size: string): string {
 <template>
     <Head>
         <title>{{ meta.title }}</title>
-        <meta v-if="meta.description" name="description" :content="meta.description" />
-        <meta v-if="meta.noindex" name="robots" content="noindex" />
-        <meta property="og:title" :content="meta.title" />
-        <meta v-if="meta.description" property="og:description" :content="meta.description" />
-        <meta v-if="meta.ogImage" property="og:image" :content="meta.ogImage" />
-        <meta property="og:type" content="profile" />
-        <meta name="twitter:card" :content="meta.ogImage ? 'summary_large_image' : 'summary'" />
     </Head>
 
     <PublicLayout :theme="theme">

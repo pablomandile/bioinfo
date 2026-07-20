@@ -11,6 +11,7 @@ use App\Http\Controllers\Dashboard\PageController;
 use App\Http\Controllers\Dashboard\SocialLinkController;
 use App\Http\Controllers\Public\LinkRedirectController;
 use App\Http\Controllers\Public\PublicPageController;
+use App\Http\Controllers\Public\QrController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -64,6 +65,10 @@ require __DIR__.'/auth.php';
 | con /dashboard, /login, /settings, etc.
 */
 Route::get('go/{block}', LinkRedirectController::class)->name('go');
+
+Route::get('{username}/qr.svg', QrController::class)
+    ->where('username', '[A-Za-z0-9_.\-]+')
+    ->name('public.qr');
 
 Route::get('{username}', [PublicPageController::class, 'show'])
     ->where('username', '[A-Za-z0-9_.\-]+')
