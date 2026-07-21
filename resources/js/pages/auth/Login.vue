@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import GoogleLoginButton from '@/components/GoogleLoginButton.vue';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
@@ -81,6 +82,14 @@ const submit = () => {
                     Iniciar sesión
                 </Button>
             </div>
+
+            <div class="flex items-center gap-3 text-xs text-muted-foreground">
+                <span class="h-px flex-1 bg-border"></span>
+                o
+                <span class="h-px flex-1 bg-border"></span>
+            </div>
+
+            <GoogleLoginButton />
 
             <div class="text-center text-sm text-muted-foreground">
                 ¿No tenés una cuenta?
