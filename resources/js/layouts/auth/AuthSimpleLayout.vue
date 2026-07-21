@@ -13,7 +13,7 @@ defineProps<{
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
                     <Link :href="route('home')" class="flex flex-col items-center gap-2 font-medium">
-                        <img src="/img/logo-cuadrado.png" :alt="title" class="mb-1 h-16 w-16 rounded-md object-contain" />
+                        <img src="/img/logo-cuadrado.png" :alt="title" class="mb-1 h-36 w-36 rounded-md object-contain" />
                         <span class="sr-only">{{ title }}</span>
                     </Link>
                     <div class="space-y-2 text-center">
