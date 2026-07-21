@@ -19,6 +19,7 @@ interface EditablePageData {
     id: number;
     username: string;
     slug: string;
+    isPrimary: boolean;
     title: string | null;
     bio: string | null;
     avatarUrl: string | null;
@@ -28,6 +29,7 @@ interface EditablePageData {
     meta_description: string | null;
     theme: PageTheme | null;
     publicUrl: string;
+    qrUrl: string;
 }
 
 interface SocialItem {
@@ -78,9 +80,10 @@ async function run<T>(promise: Promise<T>): Promise<T | undefined> {
     }
 }
 
-const savePage = debounce(() => {
-    void run(
-        api('patch', base, {
+const savePage = debounce(async () => {
+    const result = await run(
+        api<{ publicUrl: string; qrUrl: string }>('patch', base, {
+            slug: page.slug,
             title: page.title,
             bio: page.bio,
             layout: page.layout,
@@ -89,7 +92,16 @@ const savePage = debounce(() => {
             theme: page.theme,
         }),
     );
+    if (result) {
+        page.publicUrl = result.publicUrl;
+        page.qrUrl = result.qrUrl;
+    }
 }, 600);
+
+function onSlug(event: Event) {
+    page.slug = (event.target as HTMLInputElement).value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    savePage();
+}
 
 async function addBlock(type: string) {
     const block = await run(api<PublicBlock>('post', `${base}/blocks`, { type }));
@@ -171,7 +183,7 @@ const profilePreview = computed(() => ({
 const socialPreview = computed(() => social.map((s) => ({ platform: s.platform, label: s.label, url: s.url })));
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Administrar links', href: '/dashboard' },
     { title: 'Editor', href: '#' },
 ];
 </script>
@@ -186,6 +198,16 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="flex items-center gap-2 text-sm">
                     <span class="text-muted-foreground">bioinfo.test/</span>
                     <span class="font-medium">{{ page.username }}</span>
+                    <template v-if="!page.isPrimary">
+                        <span class="text-muted-foreground">/</span>
+                        <input
+                            :value="page.slug"
+                            spellcheck="false"
+                            class="w-32 rounded border bg-background px-1.5 py-0.5 text-sm"
+                            @input="onSlug"
+                        />
+                    </template>
+                    <span v-else class="rounded-full bg-blue-500/15 px-2 py-0.5 text-xs text-blue-600 dark:text-blue-400">Principal</span>
                     <button type="button" class="rounded p-1 text-muted-foreground hover:bg-accent" title="Copiar URL" @click="copyUrl">
                         <Check v-if="copied" class="h-4 w-4 text-green-500" />
                         <Copy v-else class="h-4 w-4" />
@@ -272,8 +294,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
         <ShareDialog
             :open="shareOpen"
-            :username="page.username"
             :public-url="page.publicUrl"
+            :qr-url="page.qrUrl"
             :is-published="isPublished"
             @close="shareOpen = false"
         />

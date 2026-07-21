@@ -28,7 +28,7 @@ class PublicPageController extends Controller
 
     public function __construct(private readonly ThemeResolver $themes) {}
 
-    public function show(Request $request, string $username): Response
+    public function show(Request $request, string $username, ?string $slug = null): Response
     {
         abort_if(in_array(strtolower($username), self::RESERVED, true), 404);
 
@@ -40,7 +40,9 @@ class PublicPageController extends Controller
         abort_unless($user, 404);
 
         /** @var Page|null $page */
-        $page = $user->pages()->where('is_primary', true)->first();
+        $page = $slug === null
+            ? $user->pages()->where('is_primary', true)->first()
+            : $user->pages()->where('slug', $slug)->first();
 
         abort_unless($page, 404);
 

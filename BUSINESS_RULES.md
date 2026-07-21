@@ -51,8 +51,9 @@ Existen dos roles: **`admin`** y **`user`**.
 
 ## 3. Páginas
 
-- **BR-3.1** — Cada usuario tiene **una página primaria** (`is_primary = true`), servida en `/{username}`. En el MVP es la única página por cuenta.
-- **BR-3.2** — (Fase 2) Un usuario podrá tener múltiples páginas; las secundarias se sirven en `/{username}/{slug}` y el `slug` es **único por usuario** (`unique(user_id, slug)`).
+- **BR-3.1** — Cada usuario tiene **una página primaria** (`is_primary = true`), servida en `/{username}`. Al marcar otra como principal se desmarca la anterior (siempre hay exactamente una).
+- **BR-3.2** — Un usuario puede tener **hasta 4 biolinks** (`PageController::MAX_PAGES`). Las páginas secundarias se sirven en `/{username}/{slug}`, con `slug` **único por usuario** (`unique(user_id, slug)`), en minúsculas/dígitos/guiones.
+- **BR-3.2b** — No se puede eliminar el **único** biolink de una cuenta. Al eliminar la página principal, se promueve automáticamente otra a principal. La eliminación es definitiva (borra en cascada bloques, redes y analíticas).
 - **BR-3.3** — Una página tiene estado `draft` (borrador) o `published` (publicada).
 - **BR-3.4** — Una página en `draft` **solo es visible para su dueño y para un admin** (con indicación de "vista previa"); a cualquier otro visitante se le responde 404.
 - **BR-3.5** — Solo una página **publicada** genera QR, es indexable y registra analíticas de vistas públicas.

@@ -16,6 +16,7 @@ class DashboardController extends Controller
 
         $pages = $user->pages()
             ->orderByDesc('is_primary')
+            ->orderBy('id')
             ->withCount('blocks')
             ->get()
             ->map(fn (Page $page) => [
@@ -25,7 +26,12 @@ class DashboardController extends Controller
                 'status' => $page->status->value,
                 'isPrimary' => $page->is_primary,
                 'blocksCount' => $page->blocks_count,
-                'publicUrl' => url('/'.$user->username),
+                'publicUrl' => $page->is_primary
+                    ? url('/'.$user->username)
+                    : url('/'.$user->username.'/'.$page->slug),
+                'publicPath' => $page->is_primary
+                    ? '/'.$user->username
+                    : '/'.$user->username.'/'.$page->slug,
                 'editUrl' => route('pages.edit', $page),
                 'analyticsUrl' => route('pages.analytics', $page),
             ]);
@@ -33,6 +39,8 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', [
             'pages' => $pages,
             'username' => $user->username,
+            'canCreate' => $pages->count() < PageController::MAX_PAGES,
+            'maxPages' => PageController::MAX_PAGES,
         ]);
     }
 }

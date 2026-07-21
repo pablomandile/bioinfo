@@ -2,11 +2,10 @@
 import { Check, Copy, Download, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-const props = defineProps<{ open: boolean; username: string; publicUrl: string; isPublished: boolean }>();
+const props = defineProps<{ open: boolean; publicUrl: string; qrUrl: string; isPublished: boolean }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
 
 const copied = ref(false);
-const qrUrl = `/${props.username}/qr.svg`;
 
 async function copy() {
     await navigator.clipboard.writeText(props.publicUrl);

@@ -13,19 +13,23 @@ use App\Http\Controllers\Public\LinkRedirectController;
 use App\Http\Controllers\Public\PublicPageController;
 use App\Http\Controllers\Public\QrController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('dashboard')->scopeBindings()->group(function () {
+        Route::post('pages', [PageController::class, 'store'])->name('pages.store');
         Route::get('pages/{page}/edit', [PageController::class, 'edit'])->name('pages.edit');
         Route::get('pages/{page}/analytics', [AnalyticsController::class, 'show'])->name('pages.analytics');
+        Route::patch('pages/{page}/primary', [PageController::class, 'makePrimary'])->name('pages.primary');
         Route::patch('pages/{page}', [PageController::class, 'update'])->name('pages.update');
+        Route::delete('pages/{page}', [PageController::class, 'destroy'])->name('pages.destroy');
 
         Route::post('pages/{page}/blocks', [BlockController::class, 'store'])->name('blocks.store');
         Route::patch('pages/{page}/blocks/reorder', [BlockController::class, 'reorder'])->name('blocks.reorder');
@@ -70,6 +74,14 @@ Route::get('{username}/qr.svg', QrController::class)
     ->where('username', '[A-Za-z0-9_.\-]+')
     ->name('public.qr');
 
+Route::get('{username}/{slug}/qr.svg', QrController::class)
+    ->where(['username' => '[A-Za-z0-9_.\-]+', 'slug' => '[a-z0-9-]+'])
+    ->name('public.qr.slug');
+
 Route::get('{username}', [PublicPageController::class, 'show'])
     ->where('username', '[A-Za-z0-9_.\-]+')
     ->name('public.page');
+
+Route::get('{username}/{slug}', [PublicPageController::class, 'show'])
+    ->where(['username' => '[A-Za-z0-9_.\-]+', 'slug' => '[a-z0-9-]+'])
+    ->name('public.page.slug');

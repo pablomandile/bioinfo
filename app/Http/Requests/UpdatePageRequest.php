@@ -19,7 +19,17 @@ class UpdatePageRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var \App\Models\Page $page */
+        $page = $this->route('page');
+
         return [
+            'slug' => [
+                'sometimes',
+                'string',
+                'max:60',
+                'regex:/^[a-z0-9-]+$/',
+                Rule::unique('pages', 'slug')->where('user_id', $page->user_id)->ignore($page->id),
+            ],
             'title' => ['sometimes', 'nullable', 'string', 'max:120'],
             'bio' => ['sometimes', 'nullable', 'string', 'max:1000'],
             'layout' => ['sometimes', Rule::enum(PageLayout::class)],
