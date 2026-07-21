@@ -261,7 +261,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
                 <!-- Columna de edición -->
-                <div class="space-y-6">
+                <div class="min-w-0 space-y-6">
                     <section class="rounded-xl border p-4">
                         <h2 class="mb-3 text-sm font-semibold">Perfil</h2>
                         <ProfilePanel :page="page" @change="savePage" @avatar="uploadAvatar" @avatar-remove="removeAvatar" />
