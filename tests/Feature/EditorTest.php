@@ -85,6 +85,38 @@ class EditorTest extends TestCase
             ->assertStatus(422);
     }
 
+    public function test_link_block_accepts_mailto_and_tel(): void
+    {
+        [$user, $page] = $this->userWithPage();
+        $this->actingAs($user)->postJson("/dashboard/pages/{$page->id}/blocks", ['type' => 'link']);
+        $block = $page->blocks()->firstOrFail();
+
+        $this->actingAs($user)
+            ->patchJson("/dashboard/pages/{$page->id}/blocks/{$block->public_id}", [
+                'data' => ['label' => 'Escribime', 'url' => 'mailto:pablo.mandile@gmail.com'],
+            ])
+            ->assertOk();
+
+        $this->actingAs($user)
+            ->patchJson("/dashboard/pages/{$page->id}/blocks/{$block->public_id}", [
+                'data' => ['label' => 'Llamame', 'url' => 'tel:+5491112345678'],
+            ])
+            ->assertOk();
+
+        // mailto: con correo inválido y esquemas no permitidos siguen rechazándose.
+        $this->actingAs($user)
+            ->patchJson("/dashboard/pages/{$page->id}/blocks/{$block->public_id}", [
+                'data' => ['label' => 'Malo', 'url' => 'mailto:no-es-un-correo'],
+            ])
+            ->assertStatus(422);
+
+        $this->actingAs($user)
+            ->patchJson("/dashboard/pages/{$page->id}/blocks/{$block->public_id}", [
+                'data' => ['label' => 'Malo', 'url' => 'javascript:alert(1)'],
+            ])
+            ->assertStatus(422);
+    }
+
     public function test_reorder_persists_positions(): void
     {
         [$user, $page] = $this->userWithPage();

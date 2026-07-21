@@ -3,6 +3,7 @@
 namespace App\Blocks;
 
 use App\Enums\BlockType;
+use App\Rules\LinkUrl;
 
 /**
  * Espejo backend del registry de bloques del frontend. Define, por tipo, las
@@ -23,7 +24,7 @@ class BlockTypeRegistry
         return match ($type) {
             BlockType::Link => [
                 'data.label' => ['required', 'string', 'max:120'],
-                'data.url' => ['required', 'url', 'max:2048'],
+                'data.url' => ['required', 'string', 'max:2048', new LinkUrl],
             ],
             BlockType::Heading => [
                 'data.text' => ['required', 'string', 'max:120'],
