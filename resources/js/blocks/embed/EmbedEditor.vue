@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { parseEmbed } from './parse';
+
 const props = defineProps<{ data: Record<string, unknown> }>();
 const emit = defineEmits<{ (e: 'change'): void }>();
 
@@ -8,56 +10,31 @@ const providers = [
     { value: 'tiktok', label: 'TikTok' },
 ];
 
-function parse(provider: string, url: string): { id?: string; embedType?: string } {
-    try {
-        const parsed = new URL(url);
-
-        if (provider === 'youtube') {
-            if (parsed.hostname.includes('youtu.be')) {
-                return { id: parsed.pathname.slice(1) };
-            }
-            if (parsed.pathname.startsWith('/embed/')) {
-                return { id: parsed.pathname.split('/embed/')[1] };
-            }
-            if (parsed.pathname.startsWith('/shorts/')) {
-                return { id: parsed.pathname.split('/shorts/')[1] };
-            }
-            const v = parsed.searchParams.get('v');
-            if (v) {
-                return { id: v };
-            }
-        }
-
-        if (provider === 'spotify') {
-            const parts = parsed.pathname.split('/').filter(Boolean);
-            if (parts.length >= 2) {
-                return { id: parts[1], embedType: parts[0] };
-            }
-        }
-    } catch {
-        // no es una URL válida todavía
+/** Recalcula id/embedType a partir de la URL y el proveedor actuales. */
+function resync(url: string, providerHint?: string) {
+    const info = parseEmbed(url, providerHint);
+    if (info.provider) {
+        props.data.provider = info.provider;
     }
-
-    return {};
+    props.data.id = info.id;
+    if (info.embedType) {
+        props.data.embedType = info.embedType;
+    }
+    emit('change');
 }
 
 function onProvider(event: Event) {
-    props.data.provider = (event.target as HTMLSelectElement).value;
-    emit('change');
+    const provider = (event.target as HTMLSelectElement).value;
+    props.data.provider = provider;
+    // Re-parsear la URL ya cargada con el proveedor recién elegido.
+    resync(String(props.data.url ?? ''), provider);
 }
 
 function onUrl(event: Event) {
     const url = (event.target as HTMLInputElement).value;
     props.data.url = url;
-
-    const provider = String(props.data.provider ?? 'youtube');
-    const parsed = parse(provider, url);
-    props.data.id = parsed.id ?? '';
-    if (parsed.embedType) {
-        props.data.embedType = parsed.embedType;
-    }
-
-    emit('change');
+    // Autodetecta el proveedor por el host; el desplegable es solo respaldo.
+    resync(url, String(props.data.provider ?? '') || undefined);
 }
 </script>
 

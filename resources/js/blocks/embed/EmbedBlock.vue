@@ -1,27 +1,40 @@
 <script setup lang="ts">
 import type { PublicBlock } from '@/types/bio';
 import { computed } from 'vue';
+import { parseEmbed } from './parse';
 
 const props = defineProps<{ block: PublicBlock }>();
 
-const provider = computed(() => String(props.block.data.provider ?? ''));
-const id = computed(() => String(props.block.data.id ?? ''));
 const fallbackUrl = computed(() => String(props.block.data.url ?? ''));
 
-const iframeSrc = computed<string | null>(() => {
-    if (provider.value === 'youtube' && id.value) {
-        return `https://www.youtube-nocookie.com/embed/${id.value}`;
+// Usa los datos ya resueltos (provider/id/embedType); si falta el id, lo deriva
+// de la URL guardada. Así el embed se ve aunque solo se haya persistido la URL.
+const info = computed(() => {
+    const provider = String(props.block.data.provider ?? '');
+    const id = String(props.block.data.id ?? '');
+
+    if (id) {
+        const embedType = props.block.data.embedType ? String(props.block.data.embedType) : undefined;
+        return { provider, id, embedType };
     }
 
-    if (provider.value === 'spotify' && id.value) {
-        const type = String(props.block.data.embedType ?? 'track');
-        return `https://open.spotify.com/embed/${type}/${id.value}`;
+    return fallbackUrl.value ? parseEmbed(fallbackUrl.value, provider || undefined) : { provider, id: '' };
+});
+
+const iframeSrc = computed<string | null>(() => {
+    if (info.value.provider === 'youtube' && info.value.id) {
+        return `https://www.youtube-nocookie.com/embed/${info.value.id}`;
+    }
+
+    if (info.value.provider === 'spotify' && info.value.id) {
+        const type = info.value.embedType ?? 'track';
+        return `https://open.spotify.com/embed/${type}/${info.value.id}`;
     }
 
     return null;
 });
 
-const isSpotify = computed(() => provider.value === 'spotify');
+const isSpotify = computed(() => info.value.provider === 'spotify');
 </script>
 
 <template>
