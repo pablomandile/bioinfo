@@ -6,7 +6,7 @@ import ProfilePanel from '@/components/editor/ProfilePanel.vue';
 import ShareDialog from '@/components/editor/ShareDialog.vue';
 import SocialLinksPanel from '@/components/editor/SocialLinksPanel.vue';
 import ThemePanel from '@/components/editor/ThemePanel.vue';
-import { api, debounce } from '@/composables/useApi';
+import { api, debounce, keyedDebounce } from '@/composables/useApi';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { PageTheme, ThemePreset } from '@/lib/theme';
 import type { BreadcrumbItem } from '@/types';
@@ -110,9 +110,13 @@ async function addBlock(type: string) {
     }
 }
 
-const saveBlock = debounce((block: PublicBlock) => {
-    void run(api('patch', `${base}/blocks/${block.id}`, { data: block.data, size: block.size, isVisible: block.isVisible }));
-}, 600);
+const saveBlock = keyedDebounce(
+    (block: PublicBlock) => {
+        void run(api('patch', `${base}/blocks/${block.id}`, { data: block.data, size: block.size, isVisible: block.isVisible }));
+    },
+    (block) => block.id,
+    600,
+);
 
 async function deleteBlock(block: PublicBlock) {
     const index = blocks.findIndex((b) => b.id === block.id);
@@ -133,9 +137,13 @@ async function addSocial(payload: { platform: string; url: string }) {
     }
 }
 
-const saveSocial = debounce((item: SocialItem) => {
-    void run(api('patch', `${base}/social/${item.id}`, { platform: item.platform, url: item.url }));
-}, 600);
+const saveSocial = keyedDebounce(
+    (item: SocialItem) => {
+        void run(api('patch', `${base}/social/${item.id}`, { platform: item.platform, url: item.url }));
+    },
+    (item) => item.id,
+    600,
+);
 
 async function deleteSocial(item: SocialItem) {
     const index = social.findIndex((s) => s.id === item.id);
