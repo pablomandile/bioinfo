@@ -24,6 +24,24 @@ class ThemePresetSeeder extends Seeder
     {
         return [
             [
+                'name' => 'Violeta',
+                'settings' => [
+                    'mode' => 'dark',
+                    'tokens' => [
+                        'bg' => 'linear-gradient(160deg, #6d28d9 0%, #9333ea 45%, #db2777 100%)',
+                        'fg' => '#ffffff',
+                        'btn_bg' => 'rgba(255, 255, 255, 0.15)',
+                        'btn_fg' => '#ffffff',
+                        'btn_border' => 'rgba(255, 255, 255, 0.30)',
+                        'btn_radius' => '1rem',
+                        'btn_shadow' => '0 8px 24px rgba(0, 0, 0, 0.20)',
+                        'accent' => '#f0abfc',
+                        'font' => 'Inter',
+                        'card_bg' => 'rgba(255, 255, 255, 0.12)',
+                    ],
+                ],
+            ],
+            [
                 'name' => 'Clean Light',
                 'settings' => [
                     'mode' => 'light',

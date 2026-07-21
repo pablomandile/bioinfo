@@ -27,7 +27,7 @@ function fmtDate(date: string): string {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Administrar links', href: '/dashboard' },
     { title: 'Analíticas', href: '#' },
 ];
 </script>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BACKGROUNDS, type BackgroundPreset } from '@/lib/backgrounds';
 import type { PageTheme, ThemePreset } from '@/lib/theme';
 import { LayoutGrid, List } from 'lucide-vue-next';
 
@@ -12,10 +13,28 @@ const emit = defineEmits<{ (e: 'change'): void }>();
 
 function selectPreset(preset: ThemePreset) {
     props.page.theme.presetId = preset.id;
-    if (preset.settings?.mode) {
-        props.page.theme.mode = preset.settings.mode;
-    }
+    props.page.theme.mode = preset.settings?.mode ?? 'light';
+    // Un preset define un look completo: se limpian los overrides de fondo.
+    props.page.theme.tokens = {};
     emit('change');
+}
+
+function selectBackground(background: BackgroundPreset) {
+    // Sobreescribe el fondo y adapta texto/botones para mantener el contraste.
+    props.page.theme.tokens = {
+        bg: background.value,
+        fg: '#ffffff',
+        btn_bg: 'rgba(255, 255, 255, 0.15)',
+        btn_fg: '#ffffff',
+        btn_border: 'rgba(255, 255, 255, 0.30)',
+        card_bg: 'rgba(255, 255, 255, 0.12)',
+    };
+    props.page.theme.mode = 'dark';
+    emit('change');
+}
+
+function isBackgroundSelected(background: BackgroundPreset): boolean {
+    return props.page.theme.tokens?.bg === background.value;
 }
 
 function setLayout(layout: 'list' | 'grid') {
@@ -54,6 +73,22 @@ function swatch(preset: ThemePreset) {
                         Botón
                     </span>
                 </button>
+            </div>
+        </div>
+
+        <div>
+            <p class="mb-2 text-xs font-medium text-muted-foreground">Fondo</p>
+            <div class="grid grid-cols-5 gap-2">
+                <button
+                    v-for="background in BACKGROUNDS"
+                    :key="background.id"
+                    type="button"
+                    class="h-12 rounded-lg border-2 transition"
+                    :class="isBackgroundSelected(background) ? 'border-primary ring-2 ring-primary/40' : 'border-transparent hover:border-border'"
+                    :style="{ background: background.value }"
+                    :title="background.name"
+                    @click="selectBackground(background)"
+                />
             </div>
         </div>
 

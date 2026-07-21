@@ -4,6 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <link rel="icon" href="/img/logo.ico" sizes="any">
+
         @php($bioMeta = $page['props']['meta'] ?? null)
         <title inertia>{{ $bioMeta['title'] ?? config('app.name', 'Laravel') }}</title>
 

@@ -28,7 +28,7 @@ class DemoUserSeeder extends Seeder
 
         $demo->syncRoles([Role::User->value]);
 
-        $theme = Theme::where('is_preset', true)->where('name', 'Clean Light')->first();
+        $theme = Theme::where('is_preset', true)->where('name', 'Violeta')->first();
 
         $page = Page::updateOrCreate(
             ['user_id' => $demo->id, 'slug' => 'home'],
