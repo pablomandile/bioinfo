@@ -2,9 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Inertia\Support\Header;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -16,6 +19,40 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Ajusta los headers de caché de la respuesta que arma Inertia.
+     *
+     * Va acá y no en un middleware aparte: el middleware de Inertia setea el
+     * Vary y puede reemplazar la respuesta entera en onVersionChange(), así que
+     * cualquier middleware posterior en el grupo `web` correría antes y quedaría
+     * pisado.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        // Inertia ya lo pone y el CDN de Hostinger lo borra al comprimir con
+        // brotli, pero se declara igual: es lo correcto y lo respeta cualquier
+        // intermediario que no lo rompa.
+        $response->headers->set('Vary', Header::INERTIA.', Accept-Encoding');
+
+        /*
+         * `no-store`, no `no-cache`: `no-cache` permite guardar la respuesta y
+         * solo obliga a revalidar, y una navegación de historial (restaurar una
+         * pestaña descartada, el botón "atrás") saltea la revalidación. Sin
+         * `no-store` el navegador reusa el JSON guardado y lo muestra crudo.
+         *
+         * Y solo sobre la respuesta XHR, NUNCA sobre el HTML: `no-store` en el
+         * documento principal desactiva el back/forward cache de Chrome y
+         * convierte cada "atrás" en una ida completa a la red.
+         */
+        if ($request->header(Header::INERTIA)) {
+            $response->headers->set('Cache-Control', 'no-store, private');
+        }
+
+        return $response;
+    }
 
     /**
      * Determines the current asset version.
