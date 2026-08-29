@@ -9,28 +9,37 @@ interface EditablePage {
 }
 
 const props = defineProps<{ page: EditablePage; presets: ThemePreset[] }>();
-const emit = defineEmits<{ (e: 'change'): void }>();
+const emit = defineEmits<{ (e: 'update', patch: Partial<EditablePage>): void }>();
 
 function selectPreset(preset: ThemePreset) {
-    props.page.theme.presetId = preset.id;
-    props.page.theme.mode = preset.settings?.mode ?? 'light';
-    // Un preset define un look completo: se limpian los overrides de fondo.
-    props.page.theme.tokens = {};
-    emit('change');
+    // Un preset define un look completo: reemplaza el tema entero y, con el,
+    // se limpian los overrides de fondo.
+    emit('update', {
+        theme: {
+            presetId: preset.id,
+            mode: preset.settings?.mode ?? 'light',
+            tokens: {},
+        },
+    });
 }
 
 function selectBackground(background: BackgroundPreset) {
     // Sobreescribe el fondo y adapta texto/botones para mantener el contraste.
-    props.page.theme.tokens = {
-        bg: background.value,
-        fg: '#ffffff',
-        btn_bg: 'rgba(255, 255, 255, 0.15)',
-        btn_fg: '#ffffff',
-        btn_border: 'rgba(255, 255, 255, 0.30)',
-        card_bg: 'rgba(255, 255, 255, 0.12)',
-    };
-    props.page.theme.mode = 'dark';
-    emit('change');
+    // Conserva el preset elegido: solo cambian los tokens y el modo.
+    emit('update', {
+        theme: {
+            ...props.page.theme,
+            mode: 'dark',
+            tokens: {
+                bg: background.value,
+                fg: '#ffffff',
+                btn_bg: 'rgba(255, 255, 255, 0.15)',
+                btn_fg: '#ffffff',
+                btn_border: 'rgba(255, 255, 255, 0.30)',
+                card_bg: 'rgba(255, 255, 255, 0.12)',
+            },
+        },
+    });
 }
 
 function isBackgroundSelected(background: BackgroundPreset): boolean {
@@ -38,8 +47,7 @@ function isBackgroundSelected(background: BackgroundPreset): boolean {
 }
 
 function setLayout(layout: 'list' | 'grid') {
-    props.page.layout = layout;
-    emit('change');
+    emit('update', { layout });
 }
 
 function swatch(preset: ThemePreset) {

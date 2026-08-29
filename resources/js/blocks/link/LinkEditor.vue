@@ -1,13 +1,12 @@
 <script setup lang="ts">
 const props = defineProps<{ data: Record<string, unknown> }>();
-const emit = defineEmits<{ (e: 'change'): void }>();
+const emit = defineEmits<{ (e: 'change', data: Record<string, unknown>): void }>();
 
 function bind(key: string) {
     return {
         value: (props.data[key] as string) ?? '',
         onInput: (event: Event) => {
-            props.data[key] = (event.target as HTMLInputElement).value;
-            emit('change');
+            emit('change', { ...props.data, [key]: (event.target as HTMLInputElement).value });
         },
     };
 }

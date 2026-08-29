@@ -1,10 +1,9 @@
 <script setup lang="ts">
 const props = defineProps<{ data: Record<string, unknown> }>();
-const emit = defineEmits<{ (e: 'change'): void }>();
+const emit = defineEmits<{ (e: 'change', data: Record<string, unknown>): void }>();
 
 function onInput(event: Event) {
-    props.data.text = (event.target as HTMLTextAreaElement).value;
-    emit('change');
+    emit('change', { ...props.data, text: (event.target as HTMLTextAreaElement).value });
 }
 </script>
 

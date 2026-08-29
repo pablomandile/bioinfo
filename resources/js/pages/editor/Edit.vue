@@ -48,7 +48,9 @@ const props = defineProps<{
     socialPlatforms: { value: string; label: string }[];
 }>();
 
-const page = reactive({
+type EditablePage = Omit<EditablePageData, 'theme'> & { theme: PageTheme };
+
+const page = reactive<EditablePage>({
     ...props.page,
     theme: {
         presetId: props.page.theme?.presetId ?? null,
@@ -98,6 +100,12 @@ const savePage = debounce(async () => {
     }
 }, 600);
 
+/** Aplica el patch que emite un panel y dispara el guardado con debounce. */
+function updatePage(patch: Partial<EditablePage>) {
+    Object.assign(page, patch);
+    savePage();
+}
+
 function onSlug(event: Event) {
     page.slug = (event.target as HTMLInputElement).value.toLowerCase().replace(/[^a-z0-9-]/g, '');
     savePage();
@@ -117,6 +125,12 @@ const saveBlock = keyedDebounce(
     (block) => block.id,
     600,
 );
+
+/** Igual que updatePage, pero sobre el bloque que emitio el cambio. */
+function updateBlock(block: PublicBlock, patch: Partial<PublicBlock>) {
+    Object.assign(block, patch);
+    saveBlock(block);
+}
 
 async function deleteBlock(block: PublicBlock) {
     const index = blocks.findIndex((b) => b.id === block.id);
@@ -220,10 +234,20 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Check v-if="copied" class="h-4 w-4 text-green-500" />
                         <Copy v-else class="h-4 w-4" />
                     </button>
-                    <a :href="page.publicUrl" target="_blank" rel="noopener" class="rounded p-1 text-muted-foreground hover:bg-accent" title="Ver página">
+                    <a
+                        :href="page.publicUrl"
+                        target="_blank"
+                        rel="noopener"
+                        class="rounded p-1 text-muted-foreground hover:bg-accent"
+                        title="Ver página"
+                    >
                         <ExternalLink class="h-4 w-4" />
                     </a>
-                    <Link :href="`/dashboard/pages/${page.id}/analytics`" class="rounded p-1 text-muted-foreground hover:bg-accent" title="Analíticas">
+                    <Link
+                        :href="`/dashboard/pages/${page.id}/analytics`"
+                        class="rounded p-1 text-muted-foreground hover:bg-accent"
+                        title="Analíticas"
+                    >
                         <BarChart3 class="h-4 w-4" />
                     </Link>
                 </div>
@@ -237,7 +261,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </span>
                     <span
                         class="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                        :class="isPublished ? 'bg-green-500/15 text-green-600 dark:text-green-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'"
+                        :class="
+                            isPublished ? 'bg-green-500/15 text-green-600 dark:text-green-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                        "
                     >
                         {{ isPublished ? 'Publicada' : 'Borrador' }}
                     </span>
@@ -264,25 +290,37 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="min-w-0 space-y-6">
                     <section class="rounded-xl border p-4">
                         <h2 class="mb-3 text-sm font-semibold">Perfil</h2>
-                        <ProfilePanel :page="page" @change="savePage" @avatar="uploadAvatar" @avatar-remove="removeAvatar" />
+                        <ProfilePanel :page="page" @update="updatePage" @avatar="uploadAvatar" @avatar-remove="removeAvatar" />
                     </section>
 
                     <section class="rounded-xl border p-4">
                         <h2 class="mb-3 text-sm font-semibold">Bloques</h2>
                         <div class="space-y-3">
                             <AddBlockMenu @add="addBlock" />
-                            <BlockListEditor :blocks="blocks" :layout="page.layout" @reorder="reorderBlocks" @update="saveBlock" @delete="deleteBlock" />
+                            <BlockListEditor
+                                :blocks="blocks"
+                                :layout="page.layout"
+                                @reorder="reorderBlocks"
+                                @update="updateBlock"
+                                @delete="deleteBlock"
+                            />
                         </div>
                     </section>
 
                     <section class="rounded-xl border p-4">
                         <h2 class="mb-3 text-sm font-semibold">Redes sociales</h2>
-                        <SocialLinksPanel :social="social" :platforms="socialPlatforms" @add="addSocial" @update="saveSocial" @delete="deleteSocial" />
+                        <SocialLinksPanel
+                            :social="social"
+                            :platforms="socialPlatforms"
+                            @add="addSocial"
+                            @update="saveSocial"
+                            @delete="deleteSocial"
+                        />
                     </section>
 
                     <section class="rounded-xl border p-4">
                         <h2 class="mb-3 text-sm font-semibold">Apariencia</h2>
-                        <ThemePanel :page="page" :presets="presets" @change="savePage" />
+                        <ThemePanel :page="page" :presets="presets" @update="updatePage" />
                     </section>
                 </div>
 
@@ -300,12 +338,6 @@ const breadcrumbs: BreadcrumbItem[] = [
             </div>
         </div>
 
-        <ShareDialog
-            :open="shareOpen"
-            :public-url="page.publicUrl"
-            :qr-url="page.qrUrl"
-            :is-published="isPublished"
-            @close="shareOpen = false"
-        />
+        <ShareDialog :open="shareOpen" :public-url="page.publicUrl" :qr-url="page.qrUrl" :is-published="isPublished" @close="shareOpen = false" />
     </AppLayout>
 </template>

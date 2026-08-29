@@ -19,7 +19,7 @@ interface PageCard {
     analyticsUrl: string;
 }
 
-const props = defineProps<{ pages: PageCard[]; username: string; canCreate: boolean; maxPages: number }>();
+defineProps<{ pages: PageCard[]; username: string; canCreate: boolean; maxPages: number }>();
 
 const inertiaPage = usePage();
 const errorMsg = computed(() => (inertiaPage.props.errors as Record<string, string>)?.pages ?? null);
@@ -101,7 +101,11 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administrar links', href: '/das
                         <div class="mt-2 flex items-center gap-2">
                             <span
                                 class="rounded-full px-2 py-0.5 text-xs font-medium"
-                                :class="card.status === 'published' ? 'bg-green-500/15 text-green-600 dark:text-green-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'"
+                                :class="
+                                    card.status === 'published'
+                                        ? 'bg-green-500/15 text-green-600 dark:text-green-400'
+                                        : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                                "
                             >
                                 {{ card.status === 'published' ? 'Publicada' : 'Borrador' }}
                             </span>
@@ -119,7 +123,13 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administrar links', href: '/das
                         <Link :href="card.analyticsUrl" class="rounded-md border p-2 transition hover:bg-accent" title="Analíticas">
                             <BarChart3 class="h-4 w-4" />
                         </Link>
-                        <a :href="card.publicUrl" target="_blank" rel="noopener" class="rounded-md border p-2 transition hover:bg-accent" title="Ver página pública">
+                        <a
+                            :href="card.publicUrl"
+                            target="_blank"
+                            rel="noopener"
+                            class="rounded-md border p-2 transition hover:bg-accent"
+                            title="Ver página pública"
+                        >
                             <ExternalLink class="h-4 w-4" />
                         </a>
                     </div>

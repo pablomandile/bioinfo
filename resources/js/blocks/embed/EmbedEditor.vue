@@ -2,7 +2,7 @@
 import { parseEmbed } from './parse';
 
 const props = defineProps<{ data: Record<string, unknown> }>();
-const emit = defineEmits<{ (e: 'change'): void }>();
+const emit = defineEmits<{ (e: 'change', data: Record<string, unknown>): void }>();
 
 const providers = [
     { value: 'youtube', label: 'YouTube' },
@@ -11,30 +11,28 @@ const providers = [
 ];
 
 /** Recalcula id/embedType a partir de la URL y el proveedor actuales. */
-function resync(url: string, providerHint?: string) {
+function resync(base: Record<string, unknown>, url: string, providerHint?: string) {
     const info = parseEmbed(url, providerHint);
+    const next: Record<string, unknown> = { ...base, id: info.id };
     if (info.provider) {
-        props.data.provider = info.provider;
+        next.provider = info.provider;
     }
-    props.data.id = info.id;
     if (info.embedType) {
-        props.data.embedType = info.embedType;
+        next.embedType = info.embedType;
     }
-    emit('change');
+    emit('change', next);
 }
 
 function onProvider(event: Event) {
     const provider = (event.target as HTMLSelectElement).value;
-    props.data.provider = provider;
     // Re-parsear la URL ya cargada con el proveedor recién elegido.
-    resync(String(props.data.url ?? ''), provider);
+    resync({ ...props.data, provider }, String(props.data.url ?? ''), provider);
 }
 
 function onUrl(event: Event) {
     const url = (event.target as HTMLInputElement).value;
-    props.data.url = url;
     // Autodetecta el proveedor por el host; el desplegable es solo respaldo.
-    resync(url, String(props.data.provider ?? '') || undefined);
+    resync({ ...props.data, url }, url, String(props.data.provider ?? '') || undefined);
 }
 </script>
 

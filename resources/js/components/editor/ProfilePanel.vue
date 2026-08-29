@@ -8,9 +8,9 @@ interface EditablePage {
     username: string;
 }
 
-const props = defineProps<{ page: EditablePage }>();
+defineProps<{ page: EditablePage }>();
 const emit = defineEmits<{
-    (e: 'change'): void;
+    (e: 'update', patch: Partial<EditablePage>): void;
     (e: 'avatar', file: File): void;
     (e: 'avatar-remove'): void;
 }>();
@@ -23,13 +23,11 @@ function onFile(event: Event) {
 }
 
 function onTitle(event: Event) {
-    props.page.title = (event.target as HTMLInputElement).value;
-    emit('change');
+    emit('update', { title: (event.target as HTMLInputElement).value });
 }
 
 function onBio(event: Event) {
-    props.page.bio = (event.target as HTMLTextAreaElement).value;
-    emit('change');
+    emit('update', { bio: (event.target as HTMLTextAreaElement).value });
 }
 </script>
 
@@ -58,12 +56,23 @@ function onBio(event: Event) {
 
         <div>
             <label class="mb-1 block text-xs font-medium text-muted-foreground">Título</label>
-            <input :value="page.title ?? ''" class="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Tu nombre o marca" @input="onTitle" />
+            <input
+                :value="page.title ?? ''"
+                class="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                placeholder="Tu nombre o marca"
+                @input="onTitle"
+            />
         </div>
 
         <div>
             <label class="mb-1 block text-xs font-medium text-muted-foreground">Bio</label>
-            <textarea :value="page.bio ?? ''" rows="3" class="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Contá quién sos…" @input="onBio" />
+            <textarea
+                :value="page.bio ?? ''"
+                rows="3"
+                class="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                placeholder="Contá quién sos…"
+                @input="onBio"
+            />
         </div>
     </div>
 </template>

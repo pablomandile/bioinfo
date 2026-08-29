@@ -6,7 +6,7 @@ import BlockRow from './BlockRow.vue';
 const props = defineProps<{ blocks: PublicBlock[]; layout: 'list' | 'grid' }>();
 const emit = defineEmits<{
     (e: 'reorder'): void;
-    (e: 'update', block: PublicBlock): void;
+    (e: 'update', block: PublicBlock, patch: Partial<PublicBlock>): void;
     (e: 'delete', block: PublicBlock): void;
 }>();
 </script>
@@ -22,11 +22,14 @@ const emit = defineEmits<{
         @end="emit('reorder')"
     >
         <template #item="{ element }">
-            <BlockRow :block="element" :layout="layout" @update="emit('update', element)" @delete="emit('delete', element)" />
+            <BlockRow
+                :block="element"
+                :layout="layout"
+                @update="(patch: Partial<PublicBlock>) => emit('update', element, patch)"
+                @delete="emit('delete', element)"
+            />
         </template>
     </draggable>
 
-    <p v-else class="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">
-        Todavía no hay bloques. Añadí el primero. 👆
-    </p>
+    <p v-else class="rounded-lg border border-dashed py-8 text-center text-sm text-muted-foreground">Todavía no hay bloques. Añadí el primero. 👆</p>
 </template>

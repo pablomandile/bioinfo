@@ -5,7 +5,7 @@ import { ChevronDown, Eye, EyeOff, GripVertical, Trash2 } from 'lucide-vue-next'
 import { computed, ref } from 'vue';
 
 const props = defineProps<{ block: PublicBlock; layout: 'list' | 'grid' }>();
-const emit = defineEmits<{ (e: 'update'): void; (e: 'delete'): void }>();
+const emit = defineEmits<{ (e: 'update', patch: Partial<PublicBlock>): void; (e: 'delete'): void }>();
 
 const open = ref(false);
 const def = computed(() => resolveBlock(props.block.type));
@@ -16,13 +16,11 @@ const summary = computed(() => {
 });
 
 function toggleVisible() {
-    props.block.isVisible = !props.block.isVisible;
-    emit('update');
+    emit('update', { isVisible: !props.block.isVisible });
 }
 
 function onSize(event: Event) {
-    props.block.size = (event.target as HTMLSelectElement).value as PublicBlock['size'];
-    emit('update');
+    emit('update', { size: (event.target as HTMLSelectElement).value as PublicBlock['size'] });
 }
 </script>
 
@@ -40,7 +38,12 @@ function onSize(event: Event) {
                 <p class="text-xs text-muted-foreground">{{ def?.label ?? block.type }}</p>
             </div>
 
-            <button type="button" class="rounded p-1.5 text-muted-foreground hover:bg-accent" :aria-label="block.isVisible ? 'Ocultar' : 'Mostrar'" @click="toggleVisible">
+            <button
+                type="button"
+                class="rounded p-1.5 text-muted-foreground hover:bg-accent"
+                :aria-label="block.isVisible ? 'Ocultar' : 'Mostrar'"
+                @click="toggleVisible"
+            >
                 <Eye v-if="block.isVisible" class="h-4 w-4" />
                 <EyeOff v-else class="h-4 w-4" />
             </button>
@@ -55,7 +58,7 @@ function onSize(event: Event) {
         </div>
 
         <div v-if="open" class="space-y-3 border-t px-3 py-3">
-            <component :is="def?.editor" v-if="def?.editor" :data="block.data" @change="emit('update')" />
+            <component :is="def?.editor" v-if="def?.editor" :data="block.data" @change="(data: PublicBlock['data']) => emit('update', { data })" />
 
             <div v-if="layout === 'grid'">
                 <label class="mb-1 block text-xs font-medium text-muted-foreground">Tamaño en el grid</label>
