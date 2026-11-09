@@ -3,20 +3,23 @@ import InputError from '@/components/InputError.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { TransitionRoot } from '@headlessui/vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 
 interface Props {
     className?: string;
 }
 
 defineProps<Props>();
+
+/** La cuenta de la demo es compartida: el backend rechaza el cambio. */
+const demo = computed(() => usePage<SharedData>().props.demo);
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -65,7 +68,15 @@ const updatePassword = () => {
             <div class="space-y-6">
                 <HeadingSmall title="Actualizar contraseña" description="Usá una contraseña larga y aleatoria para mantener tu cuenta segura" />
 
-                <form @submit.prevent="updatePassword" class="space-y-6">
+                <div v-if="demo" class="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+                    <p class="font-medium">No se puede cambiar en la demo</p>
+                    <p class="mt-1 text-muted-foreground">
+                        La cuenta es compartida y sus credenciales están publicadas en la pantalla de inicio de sesión, así que la contraseña queda
+                        fija. Se reinicia todo cada noche.
+                    </p>
+                </div>
+
+                <form v-else @submit.prevent="updatePassword" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="current_password">Contraseña actual</Label>
                         <Input

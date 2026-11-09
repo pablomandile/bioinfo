@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TransitionRoot } from '@headlessui/vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 import DeleteUser from '@/components/DeleteUser.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
@@ -30,6 +31,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 
+/**
+ * En la demo la cuenta es compartida: el backend rechaza los cambios, así que
+ * acá no se muestran los formularios que no van a funcionar.
+ */
+const demo = computed(() => page.props.demo);
+
 const form = useForm({
     name: user.name,
     email: user.email,
@@ -50,7 +57,16 @@ const submit = () => {
             <div class="flex flex-col space-y-6">
                 <HeadingSmall title="Información del perfil" description="Actualizá tu nombre y tu correo electrónico" />
 
-                <form @submit.prevent="submit" class="space-y-6">
+                <div v-if="demo" class="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+                    <p class="font-medium">Esta es una cuenta de demostración</p>
+                    <p class="mt-1 text-muted-foreground">
+                        La comparten todas las personas que entran a probar la app, así que no se puede cambiar el nombre, el correo ni la contraseña,
+                        ni borrar la cuenta. Todo lo demás —páginas, bloques, redes y apariencia— se puede editar libremente: los datos vuelven a su
+                        estado original cada noche.
+                    </p>
+                </div>
+
+                <form v-else @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="name">Nombre</Label>
                         <Input id="name" class="mt-1 block w-full" v-model="form.name" required autocomplete="name" placeholder="Nombre completo" />
@@ -105,7 +121,7 @@ const submit = () => {
                 </form>
             </div>
 
-            <DeleteUser />
+            <DeleteUser v-if="!demo" />
         </SettingsLayout>
     </AppLayout>
 </template>

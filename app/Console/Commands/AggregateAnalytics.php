@@ -22,8 +22,20 @@ class AggregateAnalytics extends Command
             ->groupBy('page_id', 'block_id', 'type', 'day')
             ->get();
 
+        /*
+         * Por el query builder y no por el modelo, a propósito.
+         *
+         * `AnalyticsDaily` castea `date`, así que al guardar por el modelo
+         * Eloquent escribe la fecha con hora ('2026-11-07 00:00:00') mientras
+         * que el `where` de búsqueda lleva solo el día ('2026-11-07'). En MySQL
+         * no se ve, porque la columna es DATE y trunca; en una conexión que no
+         * valide tipos —SQLite— los dos formatos conviven, el updateOrCreate
+         * no encuentra la fila que él mismo escribió e intenta insertarla de
+         * nuevo, rompiendo la clave única. Como esto corre cada hora por cron,
+         * tiene que ser idempotente en cualquier motor.
+         */
         foreach ($rows as $row) {
-            AnalyticsDaily::updateOrCreate(
+            AnalyticsDaily::query()->toBase()->updateOrInsert(
                 [
                     'page_id' => $row->page_id,
                     'block_id' => $row->block_id,

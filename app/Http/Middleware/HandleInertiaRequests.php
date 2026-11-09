@@ -83,6 +83,15 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'isAdmin' => (bool) $request->user()?->isAdmin(),
             ],
+            /*
+             * En la demo pública las credenciales se muestran en el login (es
+             * una cuenta compartida que se reinicia cada noche). En la
+             * productiva esto es `null` y el frontend no dibuja nada.
+             */
+            'demo' => config('demo.enabled') ? [
+                'email' => config('demo.email'),
+                'password' => config('demo.password'),
+            ] : null,
         ]);
     }
 }

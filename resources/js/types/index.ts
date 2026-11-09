@@ -16,10 +16,20 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+/**
+ * Credenciales de la cuenta de demostración. Llega con valor sólo en el entorno
+ * de la demo pública; en la productiva es `null`.
+ */
+export interface DemoCredentials {
+    email: string;
+    password: string;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    demo: DemoCredentials | null;
     ziggy: {
         location: string;
         url: string;

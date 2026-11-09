@@ -10,3 +10,12 @@ Artisan::command('inspire', function () {
 
 // Consolidación horaria de los eventos de analítica en agregados diarios.
 Schedule::command('analytics:rollup')->hourly();
+
+/*
+ * Reset nocturno de la demo pública: deja la cuenta compartida como estaba,
+ * borrando lo que hayan tocado los visitantes del día. Solo se registra en el
+ * entorno de la demo; en la productiva el `when()` lo deja afuera.
+ */
+Schedule::command('demo:reset', ['--force' => true])
+    ->dailyAt(config('demo.reset_at'))
+    ->when(fn () => (bool) config('demo.enabled'));
